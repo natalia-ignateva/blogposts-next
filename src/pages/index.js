@@ -1,6 +1,7 @@
 import Head from 'next/head';
-import Parser from 'rss-parser';
 import Link from 'next/link';
+import Parser from 'rss-parser';
+import Airtable from 'airtable';
 
 const Home = (props) => (
     <div>
@@ -26,7 +27,7 @@ const Home = (props) => (
                     </thead>
                     <tbody>
                         {props.posts
-                            //.sort((a, b) => new Date(b.date) - new Date(a.date))
+                            .sort((a, b) => new Date(b.date) - new Date(a.date))
                             .map((value, index) => {
                                 return (
                                     <tr key={index}>
@@ -53,21 +54,49 @@ const Home = (props) => (
     </div>
 );
 
-export async function getStaticProps(context) {
+export default Home;
+
+export async function getStaticProps() {
     const parser = new Parser();
 
-    const feed = await parser.parseURL('https://teacherluke.co.uk/feed/');
+    const base = new Airtable({ apiKey: process.env.APIKEY }).base(
+        'appkJZ3f5To6q2NRo',
+    );
 
-    const posts = feed.items.reduce(
-        (acc, item) =>
-            acc.concat({
+    const records = await base('Blogs List')
+        .select({
+            view: 'Grid view',
+        })
+        .firstPage();
+
+    const feeds = records
+        .filter((record) => {
+            if (record.get('approved') === true) return true;
+        })
+        .map((record) => {
+            return {
+                id: record.id,
+                name: record.get('name'),
+                blogurl: record.get('blogurl'),
+                feedurl: record.get('feedurl'),
+            };
+        });
+
+    const posts = [];
+
+    for (const feed of feeds) {
+        console.log(feed.feedurl);
+        const data = await parser.parseURL(feed.feedurl);
+
+        data.items.slice(0, 10).forEach((item) => {
+            posts.push({
                 title: item.title,
                 link: item.link,
                 date: item.pubDate,
-                name: 'Luke Thompson',
-            }),
-        [],
-    );
+                name: feed.name,
+            });
+        });
+    }
 
     return {
         props: {
@@ -75,5 +104,3 @@ export async function getStaticProps(context) {
         },
     };
 }
-
-export default Home;
