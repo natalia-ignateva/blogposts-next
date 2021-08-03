@@ -7,22 +7,35 @@ const Home = (props) => (
     <div>
         <Head>
             <title>Latest posts</title>
+            <link
+                rel="stylesheet"
+                href="https://cdn.jsdelivr.net/npm/@tailwindcss/ui@latest/dist/tailwind-ui.min.css"
+            />
         </Head>
         <div>
             <header>
-                <h1>Latest posts</h1>
-                <p>
+                <div className="max-w-2xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
+                    <div className="flex justify-items-center">
+                        <h1 className="text-3xl font-bold leading-tight text-gray-900">
+                            Latest posts
+                        </h1>
+                    </div>
+                </div>
+                <p className="max-w-2xl mx-auto py-6 px-4 sm:px-6 lg:px-8">
                     <Link href="/form">
-                        <a>Add a new blog</a>
+                        <div>
+                            <a className="rounded-full cursor-pointer px-5 py-3 bg-blue-500 text-white text-semibold text-center hover:bg-blue-800">
+                                Add a new blog
+                            </a>
+                        </div>
                     </Link>
                 </p>
             </header>
-            <main>
+            <main className="px-6 py-3 max-w-2xl mx-auto sm:px-6 lg:px-8">
                 <table>
                     <thead>
                         <tr>
-                            <th>Post</th>
-                            <th>Date</th>
+                            <th className=" py-3 border-b border-gray-200 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -32,17 +45,21 @@ const Home = (props) => (
                                 return (
                                     <tr key={index}>
                                         <td>
-                                            <div>
+                                            <div className="pt-4 text-base leading-5 font-medium text-gray-900 hover:text-gray-600">
                                                 <a href={value.link}>
                                                     {value.title}
                                                 </a>
                                             </div>
-                                            <div>{value.name}</div>
-                                        </td>
-                                        <td>
-                                            {new Date(
-                                                value.date,
-                                            ).toDateString()}
+                                            <div className="pt-3 text-xs leading-5 font-weight-400 text-gray-900 hover:text-gray-600">
+                                                <a href={value.link}>
+                                                    {value.name}
+                                                </a>
+                                            </div>
+                                            <div className="border-b border-gray-200 pb-4 text-xs leading-5 font-weight-400 text-gray-400">
+                                                {new Date(
+                                                    value.date,
+                                                ).toDateString()}
+                                            </div>
                                         </td>
                                     </tr>
                                 );
@@ -88,7 +105,7 @@ export async function getStaticProps() {
         console.log(feed.feedurl);
         const data = await parser.parseURL(feed.feedurl);
 
-        data.items.slice(0, 10).forEach((item) => {
+        data.items.slice(0, 5).forEach((item) => {
             posts.push({
                 title: item.title,
                 link: item.link,
